@@ -1,0 +1,172 @@
+// This is the Database Schema Design for Meluribook
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User & Auth
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String?  // Optional for OAuth users
+  googleId  String?  @unique
+  fullName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  businesses BusinessMember[]
+}
+
+// Business Profile
+model Business {
+  id              String   @id @default(uuid())
+  name            String
+  country         String   // ISO Code (e.g., US, NG, GB)
+  currency        String   // Base currency (e.g., USD, NGN)
+  reportingPeriod String   // e.g., Monthly, Quarterly
+  
+  // Relations
+  members         BusinessMember[]
+  transactions    Transaction[]
+  journalEntries  JournalEntry[]
+  invoices        Invoice[]
+  taxSettings     TaxSetting?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BusinessMember {
+  id         String   @id @default(uuid())
+  userId     String
+  businessId String
+  role       String   // OWNER, EDITOR, VIEWER, ACCOUNTANT
+  
+  user       User     @relation(fields: [userId], references: [id])
+  business   Business @relation(fields: [businessId], references: [id])
+}
+
+// -------------------------------------------
+// Core Ledger System (Hidden from MVP User)
+// -------------------------------------------
+
+// Chart of Accounts (Standardized but extensible)
+model Account {
+  id           String   @id @default(uuid())
+  businessId   String?  // Null for system default accounts
+  code         String   // e.g., "1000", "4000"
+  name         String   // e.g., "Cash at Bank", "Sales Revenue"
+  type         String   // ASSET, LIABILITY, EQUITY, REVENUE, EXPENSE
+  
+  journalLines JournalLine[]
+  transactions Transaction[] // Direct link for simple caching/querying
+}
+
+// The "Truth" of the accounting system
+model JournalEntry {
+  id          String   @id @default(uuid())
+  businessId  String
+  date        DateTime
+  description String
+  reference   String?  // e.g., Invoice ID, Transaction ID
+  
+  business    Business      @relation(fields: [businessId], references: [id])
+  lines       JournalLine[]
+  
+  transactionId String? @unique // Link back to the user-facing transaction
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+model JournalLine {
+  id             String       @id @default(uuid())
+  journalEntryId String
+  accountId      String
+  description    String?
+  debit          Decimal      @default(0)
+  credit         Decimal      @default(0)
+  
+  journalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id])
+  account        Account      @relation(fields: [accountId], references: [id])
+}
+
+// -------------------------------------------
+// User Facing Models (MVP)
+// -------------------------------------------
+
+// Simplified "Money In / Money Out" for users
+model Transaction {
+  id          String   @id @default(uuid())
+  businessId  String
+  type        String   // INCOME, EXPENSE, TRANSFER
+  amount      Decimal
+  currency    String
+  date        DateTime
+  payee       String?  // Who paid or who was paid
+  category    String?  // User friendly category (e.g., "Office Supplies")
+  description String?
+  
+  // Metadata
+  receiptUrl  String?
+  isTaxDeductible Boolean @default(false)
+  
+  // Relations
+  business    Business @relation(fields: [businessId], references: [id])
+  
+  // Link to the detailed accounting backend
+  journalEntry JournalEntry?
+  accountId    String? // Which 'bank' or 'cash' account this affects
+  account      Account? @relation(fields: [accountId], references: [id])
+}
+
+// Invoicing
+model Invoice {
+  id          String   @id @default(uuid())
+  businessId  String
+  number      String   // e.g., INV-001
+  status      String   // DRAFT, SENT, PAID, OVERDUE, CANCELLED
+  issueDate   DateTime
+  dueDate     DateTime
+  
+  customerName  String
+  customerEmail String?
+  currency      String
+  totalAmount   Decimal
+  taxAmount     Decimal
+  
+  items       InvoiceItem[]
+  
+  business    Business @relation(fields: [businessId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model InvoiceItem {
+  id        String  @id @default(uuid())
+  invoiceId String
+  description String
+  quantity  Int
+  unitPrice Decimal
+  amount    Decimal
+  
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+// Tax Engine Storage
+model TaxSetting {
+  id          String @id @default(uuid())
+  businessId  String @unique
+  countryCode String // e.g., "NG", "US"
+  
+  // JSON blob for country-specific configs (e.g., VAT ID, State, Filing Freq)
+  config      Json   
+  
+  business    Business @relation(fields: [businessId], references: [id])
+}
