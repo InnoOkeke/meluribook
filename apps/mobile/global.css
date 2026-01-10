@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .input-field {
+    @apply w-full border p-4 rounded-xl;
+    @apply bg-white dark:bg-dark-surface;
+    @apply border-gray-300 dark:border-gray-700;
+    @apply text-black dark:text-dark-text;
+    @apply focus:border-primary;
+  }
+}

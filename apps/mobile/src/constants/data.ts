@@ -1,0 +1,41 @@
+
+export const COUNTRIES = [
+    { code: 'US', name: 'United States', flag: '🇺🇸' },
+    { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
+    { code: 'CA', name: 'Canada', flag: '🇨🇦' },
+    { code: 'AU', name: 'Australia', flag: '🇦🇺' },
+    { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
+    { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+    { code: 'FR', name: 'France', flag: '🇫🇷' },
+    { code: 'IN', name: 'India', flag: '🇮🇳' },
+    { code: 'JP', name: 'Japan', flag: '🇯🇵' },
+    { code: 'CN', name: 'China', flag: '🇨🇳' },
+    { code: 'BR', name: 'Brazil', flag: '🇧🇷' },
+    { code: 'ZA', name: 'South Africa', flag: '🇿🇦' },
+    { code: 'KE', name: 'Kenya', flag: '🇰🇪' },
+    { code: 'GH', name: 'Ghana', flag: '🇬🇭' },
+    { code: 'AE', name: 'United Arab Emirates', flag: '🇦🇪' },
+    { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦' },
+    { code: 'MX', name: 'Mexico', flag: '🇲🇽' },
+    { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
+    // Add more as needed
+].sort((a, b) => a.name.localeCompare(b.name));
+
+export const CURRENCIES = [
+    { code: 'USD', name: 'US Dollar', symbol: '$' },
+    { code: 'EUR', name: 'Euro', symbol: '€' },
+    { code: 'GBP', name: 'British Pound', symbol: '£' },
+    { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
+    { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+    { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+    { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+    { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+    { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+    { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
+    { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
+    { code: 'GHS', name: 'Ghanaian Cedi', symbol: '₵' },
+    { code: 'AED', name: 'UAE Dirham', symbol: 'dh' },
+    { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼' },
+    { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+    { code: 'MXN', name: 'Mexican Peso', symbol: '$' },
+].sort((a, b) => a.code.localeCompare(b.code));
